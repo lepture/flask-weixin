@@ -131,6 +131,27 @@ class TestSimpleWeixin(Base):
         assert rv.status_code == 200
 
 
+class TestExipires(Base):
+    def create_app(self):
+        app = Base.create_app(self)
+        app.config['WEIXIN_EXPIRES_IN'] = 4
+        return app
+
+    def test_expires(self):
+        rv = self.client.get(signature_url)
+        assert rv.status_code == 400
+
+    def test_invalid_timestamp(self):
+        signature_url = (
+            '/?signature=16f39f0c528790d3a448a8a7a65cc81ceddd82bb&'
+            'echostr=5935258128547730623&'
+            'timestamp=1381389497s&'
+            'nonce=1381909961'
+        )
+        rv = self.client.get(signature_url)
+        assert rv.status_code == 400
+
+
 class TestReplyWeixin(Base):
     '''
     <xml>
