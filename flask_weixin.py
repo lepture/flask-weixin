@@ -85,7 +85,7 @@ class Weixin(object):
         ret['type'] = type = dct.get('MsgType')
 
         if type == 'text':
-            ret['content'] = dct.get('content')
+            ret['content'] = dct.get('Content')
             return ret
 
         if type == 'image':
@@ -161,15 +161,16 @@ class Weixin(object):
             echostr = request.args.get('echostr')
             if self.validate(signature, timestamp, nonce):
                 return echostr
-            return 'failed'
+            return 'failed', 400
 
-        if request.method != 'POST':
-            return '', 405
+        try:
+            ret = self.parse(request.data)
+        except:
+            return 'invalid', 400
 
-        ret = self.parse(request.data)
         if 'type' not in ret:
             # not a valid message
-            return 'invalid'
+            return 'invalid', 400
 
         if ret['type'] == 'text' and ret['content'] in self._registry:
             func = self._registry[ret['content']]
@@ -188,6 +189,8 @@ class Weixin(object):
                 content=func,
             )
         return Response(text, content_type='text/xml; charset=utf-8')
+
+    view_func.methods = ['GET', 'POST']
 
 
 def create_music(common, item):
@@ -211,7 +214,7 @@ def create_news(common, items):
         '<item>'
         '<Title><![CDATA[%(title)s]]></Title>'
         '<Description><![CDATA[%(description)s]]></Description>'
-        '<PicUrl><![CDATA[%(cover)s]]></PicUrl>'
+        '<PicUrl><![CDATA[%(picurl)s]]></PicUrl>'
         '<Url><![CDATA[%(url)s]]></Url>'
         '</item>'
     )
@@ -221,7 +224,7 @@ def create_news(common, items):
         '<xml>'
         '%(common)s'
         '<ArticleCount>%(count)d</ArticleCount>'
-        '<Articles>%(articles)</Articles>'
+        '<Articles>%(articles)s</Articles>'
         '</xml>'
     )
     dct = {
