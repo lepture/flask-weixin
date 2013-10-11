@@ -50,7 +50,12 @@ class Weixin(object):
         self.expires_in = config.get('WEIXIN_EXPIRES_IN', 0)
 
     def validate(self, signature, timestamp, nonce):
-        """Validate request signature."""
+        """Validate request signature.
+
+        :param signature: A string signature parameter sent by weixin.
+        :param timestamp: A int timestamp parameter sent by weixin.
+        :param nonce: A int nonce parameter sent by weixin.
+        """
         if not self.token:
             raise RuntimeError('WEIXIN_TOKEN is missing')
 
@@ -75,8 +80,11 @@ class Weixin(object):
         hsh = hashlib.sha1(s.encode('utf-8')).hexdigest()
         return signature == hsh
 
-    def parse(self, body):
-        """Parse xml body sent by weixin."""
+    def parse(self, content):
+        """Parse xml body sent by weixin.
+
+        :param content: A text of xml body.
+        """
         dct = {}
         root = etree.fromstring(body)
         for child in root:
@@ -112,10 +120,35 @@ class Weixin(object):
 
         return ret
 
-    def reply(self, username, type='text', **kwargs):
-        if 'sender' in kwargs:
-            sender = kwargs.pop('sender')
-        else:
+    def reply(self, username, type='text', sender=None, **kwargs):
+        """Create the reply text for weixin.
+
+        The reply varies per reply type. The acceptable types are `text`,
+        `music` and `news`. Each type accepts different parameters, but
+        they share some common parameters:
+
+            * username: the receiver's username
+            * type: the reply type, aka text, music and news
+            * sender: sender is optional if you have a default value
+
+        Text reply requires an additional parameter of `content`.
+
+        Music reply requires 4 more parameters:
+
+            * title: A string for music title
+            * description: A string for music description
+            * music_url: A link of the music
+            * hq_music_url: A link of the high quality music
+
+        News reply requires an additional parameter of `articles`, which
+        is a list/tuple of articles, each one is a dict:
+
+            * title: A string for article title
+            * description: A string for article description
+            * picurl: A link for article cover image
+            * url: A link for article url
+        """
+        if not sender:
             sender = self.sender
 
         if not sender:
@@ -142,6 +175,13 @@ class Weixin(object):
         self._registry[key] = func
 
     def view_func(self):
+        """Default view function for Flask app.
+
+        ::
+
+            weixin = Weixin(app)
+            app.add_url_rule('/', view_func=weixin.view_func)
+        """
         from flask import request, Response
 
         if request.method == 'GET':
