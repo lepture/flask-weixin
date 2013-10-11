@@ -86,7 +86,7 @@ class Weixin(object):
         :param content: A text of xml body.
         """
         dct = {}
-        root = etree.fromstring(body)
+        root = etree.fromstring(content)
         for child in root:
             dct[child.tag] = child.text
 
