@@ -174,7 +174,7 @@ class TestReplyWeixin(Base):
             if not content:
                 content = 'text'
             if content == 'music':
-                return weixin.create_reply(
+                return weixin.reply(
                     username, type='music', sender=sender,
                     title='weixin music',
                     description='weixin description',
@@ -182,7 +182,7 @@ class TestReplyWeixin(Base):
                     hq_music_url='hq link',
                 )
             elif content == 'news':
-                return weixin.create_reply(
+                return weixin.reply(
                     username, type='news', sender=sender,
                     articles=[
                         {
@@ -194,7 +194,7 @@ class TestReplyWeixin(Base):
                     ]
                 )
             else:
-                return weixin.create_reply(
+                return weixin.reply(
                     username, sender=sender, content='text reply'
                 )
 

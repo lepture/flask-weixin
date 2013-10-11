@@ -33,14 +33,12 @@ class Weixin(object):
 
     def __init__(self, app=None):
         self.token = None
-        self.app = app
         self._registry = {}
 
         if app:
             self.init_app(app)
 
     def init_app(self, app):
-        self.app = app
         self.token = app.config.get('WEIXIN_TOKEN', None)
         self.sender = app.config.get('WEIXIN_SENDER', None)
         self.expires_in = app.config.get('WEIXIN_EXPIRES_IN', 0)
@@ -72,6 +70,7 @@ class Weixin(object):
         return signature == hsh
 
     def parse(self, body):
+        """Parse xml body sent by weixin."""
         dct = {}
         root = etree.fromstring(body)
         for child in root:
@@ -107,7 +106,7 @@ class Weixin(object):
 
         return ret
 
-    def create_reply(self, username, type='text', **kwargs):
+    def reply(self, username, type='text', **kwargs):
         if 'sender' in kwargs:
             sender = kwargs.pop('sender')
         else:
@@ -116,34 +115,19 @@ class Weixin(object):
         if not sender:
             raise RuntimeError('WEIXIN_SENDER is missing')
 
-        dct = {
-            'username': username,
-            'sender': sender,
-            'type': type,
-            'timestamp': int(time.time()),
-        }
-
-        common = (
-            '<ToUserName><![CDATA[%(username)s]]></ToUserName>'
-            '<FromUserName><![CDATA[%(sender)s]]></FromUserName>'
-            '<CreateTime>%(timestamp)d</CreateTime>'
-            '<MsgType><![CDATA[%(type)s]]></MsgType>'
-        ) % dct
-
         if type == 'text':
             content = kwargs.get('content', '')
-            template = '<xml>%s<Content><![CDATA[%s]]></Content></xml>'
-            return template % (common, content)
+            return text_reply(username, sender, content)
 
         if type == 'music':
             values = {}
             for k in ('title', 'description', 'music_url', 'hq_music_url'):
                 values[k] = kwargs.get(k)
-            return create_music(common, values)
+            return music_reply(username, sender, **values)
 
         if type == 'news':
             items = kwargs.get('articles', [])
-            return create_news(common, items)
+            return news_reply(username, sender, *items)
 
         return None
 
@@ -183,7 +167,7 @@ class Weixin(object):
             text = func(**ret)
         else:
             # plain text
-            text = self.create_reply(
+            text = self.reply(
                 username=ret['sender'],
                 sender=ret['receiver'],
                 content=func,
@@ -193,10 +177,18 @@ class Weixin(object):
     view_func.methods = ['GET', 'POST']
 
 
-def create_music(common, item):
+def text_reply(username, sender, content):
+    shared = _shared_reply(username, sender, 'text')
+    template = '<xml>%s<Content><![CDATA[%s]]></Content></xml>'
+    return template % (shared, content)
+
+
+def music_reply(username, sender, **kwargs):
+    kwargs['shared'] = _shared_reply(username, sender, 'music')
+
     template = (
         '<xml>'
-        '%(common)s'
+        '%(shared)s'
         '<Music>'
         '<Title><![CDATA[%(title)s]]></Title>'
         '<Description><![CDATA[%(description)s]]></Description>'
@@ -205,11 +197,10 @@ def create_music(common, item):
         '</Music>'
         '</xml>'
     )
-    item['common'] = common
-    return template % item
+    return template % kwargs
 
 
-def create_news(common, items):
+def news_reply(username, sender, *items):
     item_template = (
         '<item>'
         '<Title><![CDATA[%(title)s]]></Title>'
@@ -222,14 +213,30 @@ def create_news(common, items):
 
     template = (
         '<xml>'
-        '%(common)s'
+        '%(shared)s'
         '<ArticleCount>%(count)d</ArticleCount>'
         '<Articles>%(articles)s</Articles>'
         '</xml>'
     )
     dct = {
-        'common': common,
+        'shared': _shared_reply(username, sender, 'news'),
         'count': len(items),
         'articles': ''.join(articles)
     }
+    return template % dct
+
+
+def _shared_reply(username, sender, type):
+    dct = {
+        'username': username,
+        'sender': sender,
+        'type': type,
+        'timestamp': int(time.time()),
+    }
+    template = (
+        '<ToUserName><![CDATA[%(username)s]]></ToUserName>'
+        '<FromUserName><![CDATA[%(sender)s]]></FromUserName>'
+        '<CreateTime>%(timestamp)d</CreateTime>'
+        '<MsgType><![CDATA[%(type)s]]></MsgType>'
+    )
     return template % dct
