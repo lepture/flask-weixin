@@ -28,8 +28,7 @@ setup(
     py_modules=['flask_weixin'],
     zip_safe=False,
     platforms='any',
-    install_requires=['Flask'],
-    tests_require=['nose'],
+    tests_require=['nose', 'Flask'],
     test_suite='nose.collector',
     classifiers=[
         'Development Status :: 3 - Alpha',

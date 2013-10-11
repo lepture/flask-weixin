@@ -39,9 +39,15 @@ class Weixin(object):
             self.init_app(app)
 
     def init_app(self, app):
-        self.token = app.config.get('WEIXIN_TOKEN', None)
-        self.sender = app.config.get('WEIXIN_SENDER', None)
-        self.expires_in = app.config.get('WEIXIN_EXPIRES_IN', 0)
+        if hasattr(app, 'config'):
+            config = app.config
+        else:
+            # flask-weixin can be used without flask
+            config = app
+
+        self.token = config.get('WEIXIN_TOKEN', None)
+        self.sender = config.get('WEIXIN_SENDER', None)
+        self.expires_in = config.get('WEIXIN_EXPIRES_IN', 0)
 
     def validate(self, signature, timestamp, nonce):
         """Validate request signature."""
