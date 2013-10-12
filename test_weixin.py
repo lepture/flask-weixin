@@ -2,6 +2,7 @@
 
 from flask import Flask
 from flask_weixin import Weixin
+from nose.tools import raises
 
 
 class Base(object):
@@ -34,6 +35,18 @@ signature_url = (
     'timestamp=1381389497&'
     'nonce=1381909961'
 )
+
+
+class TestNoToken(Base):
+    def create_app(self):
+        app = Flask(__name__)
+        app.debug = True
+        app.secret_key = 'secret'
+        return app
+
+    @raises(RuntimeError)
+    def test_validate(self):
+        self.client.get(signature_url)
 
 
 class TestSimpleWeixin(Base):
@@ -199,10 +212,10 @@ class TestReplyWeixin(Base):
                     username, sender=sender, content='text reply'
                 )
 
-        self.weixin.register('*', print_all)
-        self.weixin.register('help', 'help me')
+        weixin.register('*', print_all)
+        weixin.register('help', 'help me')
 
-        @self.weixin.register('show')
+        @weixin.register('show')
         def print_show(*args, **kwargs):
             username = kwargs.get('sender')
             sender = kwargs.get('receiver')
@@ -229,3 +242,15 @@ class TestReplyWeixin(Base):
         text = self.__doc__ % 'show'
         rv = self.client.post('/', data=text)
         assert b'show reply' in rv.data
+
+    @raises(RuntimeError)
+    def test_no_sender(self):
+        @self.weixin.register('send')
+        def print_send(*args, **kwargs):
+            username = kwargs.get('sender')
+            return self.weixin.reply(
+                username, sender=None, content='send reply'
+            )
+
+        text = self.__doc__ % 'send'
+        self.client.post('/', data=text)
