@@ -35,6 +35,7 @@ signature_url = (
     'nonce=1381909961'
 )
 
+
 class TestSimpleWeixin(Base):
     def test_invalid_get(self):
         rv = self.client.get('/')
@@ -53,7 +54,7 @@ class TestSimpleWeixin(Base):
         '''
         <xml>
         <ToUserName><![CDATA[toUser]]></ToUserName>
-        <FromUserName><![CDATA[fromUser]]></FromUserName> 
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
         <CreateTime>1348831860</CreateTime>
         <MsgType><![CDATA[text]]></MsgType>
         <Content><![CDATA[this is a test]]></Content>
@@ -91,7 +92,7 @@ class TestSimpleWeixin(Base):
         <Scale>20</Scale>
         <Label><![CDATA[location]]></Label>
         <MsgId>1234567890123456</MsgId>
-        </xml> 
+        </xml>
         '''
         text = self.test_post_location.__doc__
         rv = self.client.post('/', data=text)
@@ -108,7 +109,7 @@ class TestSimpleWeixin(Base):
         <Description><![CDATA[description]]></Description>
         <Url><![CDATA[url]]></Url>
         <MsgId>1234567890123456</MsgId>
-        </xml> 
+        </xml>
         '''
         text = self.test_post_link.__doc__
         rv = self.client.post('/', data=text)
@@ -124,7 +125,7 @@ class TestSimpleWeixin(Base):
         <Description><![CDATA[description]]></Description>
         <Url><![CDATA[url]]></Url>
         <MsgId>1234567890123456</MsgId>
-        </xml> 
+        </xml>
         '''
         text = self.test_post_no_type.__doc__
         rv = self.client.post('/', data=text)
@@ -156,7 +157,7 @@ class TestReplyWeixin(Base):
     '''
     <xml>
     <ToUserName><![CDATA[toUser]]></ToUserName>
-    <FromUserName><![CDATA[fromUser]]></FromUserName> 
+    <FromUserName><![CDATA[fromUser]]></FromUserName>
     <CreateTime>1348831860</CreateTime>
     <MsgType><![CDATA[text]]></MsgType>
     <Content><![CDATA[%s]]></Content>
