@@ -201,6 +201,14 @@ class TestReplyWeixin(Base):
         self.weixin.register('*', print_all)
         self.weixin.register('help', 'help me')
 
+        @self.weixin.register('show')
+        def print_show(*args, **kwargs):
+            username = kwargs.get('sender')
+            sender = kwargs.get('receiver')
+            return weixin.reply(
+                username, sender=sender, content='show reply'
+            )
+
     def test_help(self):
         text = self.__doc__ % 'help'
         rv = self.client.post('/', data=text)
@@ -215,3 +223,8 @@ class TestReplyWeixin(Base):
         text = self.__doc__ % 'music'
         rv = self.client.post('/', data=text)
         assert b'weixin music' in rv.data
+
+    def test_show(self):
+        text = self.__doc__ % 'show'
+        rv = self.client.post('/', data=text)
+        assert b'show reply' in rv.data

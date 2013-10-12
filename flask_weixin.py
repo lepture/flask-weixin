@@ -171,13 +171,43 @@ class Weixin(object):
         return None
 
     def register(self, key, func=None):
-        # TODO: decorator
-        self._registry[key] = func
+        """Register a command helper function.
+
+        You can register the function::
+
+            def print_help(**kwargs):
+                username = kwargs.get('sender')
+                sender = kwargs.get('receiver')
+                return weixin.reply(
+                    username, sender=sender, content='text reply'
+                )
+
+            weixin.register('help', print_help)
+
+        It is also accessible as a decorator::
+
+            @weixin.register('help')
+            def print_help(*args, **kwargs):
+                username = kwargs.get('sender')
+                sender = kwargs.get('receiver')
+                return weixin.reply(
+                    username, sender=sender, content='text reply'
+                )
+        """
+        if func:
+            self._registry[key] = func
+            return
+
+        def wrapper(func):
+            self._registry[key] = func
+
+        return wrapper
 
     def view_func(self):
         """Default view function for Flask app.
 
-        ::
+        This is a simple implementation for view func, you can add it to
+        your Flask app::
 
             weixin = Weixin(app)
             app.add_url_rule('/', view_func=weixin.view_func)
