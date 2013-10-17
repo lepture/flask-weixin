@@ -198,6 +198,21 @@ class Weixin(object):
             self._registry[key] = func
             return
 
+        return self.__call__(key)
+
+    def __call__(self, key):
+        """Register a reply function.
+
+        Only available as a decorator::
+
+            @weixin('help')
+            def print_help(*args, **kwargs):
+                username = kwargs.get('sender')
+                sender = kwargs.get('receiver')
+                return weixin.reply(
+                    username, sender=sender, content='text reply'
+                )
+        """
         def wrapper(func):
             self._registry[key] = func
 
