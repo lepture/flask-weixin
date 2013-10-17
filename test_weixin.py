@@ -60,7 +60,7 @@ class TestSimpleWeixin(Base):
         assert rv.data == b'5935258128547730623'
 
     def test_invalid_post(self):
-        rv = self.client.post('/')
+        rv = self.client.post(signature_url)
         assert rv.status_code == 400
 
     def test_post_text(self):
@@ -75,7 +75,7 @@ class TestSimpleWeixin(Base):
         </xml>
         '''
         text = self.test_post_text.__doc__
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
     def test_post_image(self):
@@ -90,7 +90,7 @@ class TestSimpleWeixin(Base):
         </xml>
         '''
         text = self.test_post_image.__doc__
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
     def test_post_location(self):
@@ -108,7 +108,7 @@ class TestSimpleWeixin(Base):
         </xml>
         '''
         text = self.test_post_location.__doc__
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
     def test_post_link(self):
@@ -125,7 +125,7 @@ class TestSimpleWeixin(Base):
         </xml>
         '''
         text = self.test_post_link.__doc__
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
     def test_post_no_type(self):
@@ -141,7 +141,7 @@ class TestSimpleWeixin(Base):
         </xml>
         '''
         text = self.test_post_no_type.__doc__
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
 
@@ -225,22 +225,22 @@ class TestReplyWeixin(Base):
 
     def test_help(self):
         text = self.__doc__ % 'help'
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert b'help me' in rv.data
 
     def test_news(self):
         text = self.__doc__ % 'news'
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert b'Hello News' in rv.data
 
     def test_music(self):
         text = self.__doc__ % 'music'
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert b'weixin music' in rv.data
 
     def test_show(self):
         text = self.__doc__ % 'show'
-        rv = self.client.post('/', data=text)
+        rv = self.client.post(signature_url, data=text)
         assert b'show reply' in rv.data
 
     @raises(RuntimeError)
@@ -253,4 +253,4 @@ class TestReplyWeixin(Base):
             )
 
         text = self.__doc__ % 'send'
-        self.client.post('/', data=text)
+        self.client.post(signature_url, data=text)

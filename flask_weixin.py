@@ -229,14 +229,15 @@ class Weixin(object):
         """
         from flask import request, Response
 
+        signature = request.args.get('signature')
+        timestamp = request.args.get('timestamp')
+        nonce = request.args.get('nonce')
+        if not self.validate(signature, timestamp, nonce):
+            return 'signature failed', 400
+
         if request.method == 'GET':
-            signature = request.args.get('signature')
-            timestamp = request.args.get('timestamp')
-            nonce = request.args.get('nonce')
             echostr = request.args.get('echostr')
-            if self.validate(signature, timestamp, nonce):
-                return echostr
-            return 'failed', 400
+            return echostr
 
         try:
             ret = self.parse(request.data)
