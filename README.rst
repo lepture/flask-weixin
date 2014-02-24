@@ -21,8 +21,6 @@ Or, with setuptools easy_install in case you didn't have pip::
     $ easy_install Flask-Weixin
 
 
-.. module:: flask_weixin
-
 Get Started
 -----------
 
