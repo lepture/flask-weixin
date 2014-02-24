@@ -57,16 +57,4 @@ For Flask user, it is suggested that you use the default view function::
             username, sender=sender, content=content
         )
 
-The example above will reply anything the user sent. You might be
-interesting in the :meth:`Weixin.reply` method.
-
-
-Without Flask
--------------
-
-Developer Interface
--------------------
-
-This part of the documentation covers the interface of Flask-Weixin
-
-.. autoclass:: Weixin
+The example above will reply anything the user sent.

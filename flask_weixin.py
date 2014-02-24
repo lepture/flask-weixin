@@ -5,7 +5,7 @@
 
     Weixin implementation in Flask.
 
-    :copyright: (c) 2013 by Hsiaoming Yang.
+    :copyright: (c) 2013 - 2014 by Hsiaoming Yang.
     :license: BSD, see LICENSE for more detail.
 """
 
@@ -21,7 +21,7 @@ except ImportError:
 
 
 __all__ = ('Weixin',)
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
 
 
