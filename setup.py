@@ -8,6 +8,7 @@ try:
 except ImportError:
     pass
 
+import os
 import re
 
 with open('flask_weixin.py') as f:
@@ -16,6 +17,11 @@ with open('flask_weixin.py') as f:
 
 from setuptools import setup
 
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
 setup(
     name='Flask-Weixin',
     version=version,
@@ -23,7 +29,7 @@ setup(
     author='Hsiaoming Yang',
     author_email='me@lepture.com',
     description='Weixin for Flask.',
-    long_description=open('README.rst').read(),
+    long_description=read('README.rst'),
     license='BSD',
     py_modules=['flask_weixin'],
     zip_safe=False,
