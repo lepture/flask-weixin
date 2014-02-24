@@ -26,14 +26,14 @@ Get Started
 
 Eager to get started? It is always the Flask way to create a new instance::
 
-    from flask_weixin import Wexin
+    from flask_weixin import Weixin
 
     weixin = Weixin(app)
 
 Or pass the ``app`` later::
 
-    wexin = Weixin()
-    wexin.init_app(app)
+    weixin = Weixin()
+    weixin.init_app(app)
 
 However, you need to configure before using it, here is the configuration
 list:
