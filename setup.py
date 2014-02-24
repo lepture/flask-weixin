@@ -11,15 +11,18 @@ except ImportError:
 import os
 import re
 
-with open('flask_weixin.py') as f:
-    m = re.findall(r'__version__\s*=\s*\'(.*)\'', f.read())
-    version = m[0]
-
 from setuptools import setup
 
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+def fread(fname):
+    filepath = os.path.join(os.path.dirname(__file__), fname)
+    with open(filepath) as f:
+        return f.read()
+
+
+content = fread('flask_weixin.py')
+m = re.findall(r'__version__\s*=\s*\'(.*)\'', content)
+version = m[0]
 
 
 setup(
@@ -29,7 +32,7 @@ setup(
     author='Hsiaoming Yang',
     author_email='me@lepture.com',
     description='Weixin for Flask.',
-    long_description=read('README.rst'),
+    long_description=fread('README.rst'),
     license='BSD',
     py_modules=['flask_weixin'],
     zip_safe=False,
