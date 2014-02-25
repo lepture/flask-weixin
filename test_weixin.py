@@ -128,6 +128,21 @@ class TestSimpleWeixin(Base):
         rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
+    def test_post_event(self):
+        '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1351776360</CreateTime>
+        <MsgType><![CDATA[event]]></MsgType>
+        <Event><![CDATA[subscribe]]></Event>
+        <MsgId>1234567890123456</MsgId>
+        </xml>
+        '''
+        text = self.test_post_event.__doc__
+        rv = self.client.post(signature_url, data=text)
+        assert rv.status_code == 200
+
     def test_post_no_type(self):
         '''
         <xml>
