@@ -118,6 +118,15 @@ class Weixin(object):
             ret['url'] = dct.get('url')
             return ret
 
+        if type == 'event':
+            ret['event'] = dct.get('Event')
+            ret['event_key'] = dct.get('EventKey')
+            ret['ticket'] = dct.get('Ticket')
+            ret['latitude'] = dct.get('Latitude')
+            ret['longitude'] = dct.get('Longitude')
+            ret['precision'] = dct.get('Precision')
+            return ret
+
         return ret
 
     def reply(self, username, type='text', sender=None, **kwargs):
