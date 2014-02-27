@@ -11,6 +11,7 @@
 
 import time
 import hashlib
+from datetime import datetime
 
 try:
     from lxml import etree
@@ -92,10 +93,11 @@ class Weixin(object):
 
         ret = {}
         ret['id'] = dct.get('MsgId')
-        ret['timestamp'] = int(dct.get('CreateTime', 0))
+        ret['timestamp'] = timestamp = int(dct.get('CreateTime', 0))
         ret['receiver'] = dct.get('ToUserName')
         ret['sender'] = dct.get('FromUserName')
         ret['type'] = type = dct.get('MsgType')
+        ret['time'] = datetime.fromtimestamp(timestamp / 1e3)
 
         if type == 'text':
             ret['content'] = dct.get('Content')
