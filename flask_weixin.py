@@ -97,7 +97,7 @@ class Weixin(object):
         ret['receiver'] = dct.get('ToUserName')
         ret['sender'] = dct.get('FromUserName')
         ret['type'] = type = dct.get('MsgType')
-        ret['time'] = datetime.fromtimestamp(timestamp / 1e3)
+        ret['time'] = datetime.fromtimestamp(timestamp / 1000.0)
 
         if type == 'text':
             ret['content'] = dct.get('Content')
