@@ -86,50 +86,68 @@ class Weixin(object):
 
         :param content: A text of xml body.
         """
-        dct = {}
+        raw = {}
         root = etree.fromstring(content)
         for child in root:
-            dct[child.tag] = child.text
+            raw[child.tag] = child.text
 
-        ret = {}
-        ret['id'] = dct.get('MsgId')
-        ret['timestamp'] = timestamp = int(dct.get('CreateTime', 0))
-        ret['receiver'] = dct.get('ToUserName')
-        ret['sender'] = dct.get('FromUserName')
-        ret['type'] = type = dct.get('MsgType')
-        ret['time'] = datetime.fromtimestamp(timestamp / 1000.0)
+        formatted = self.format(raw)
 
-        if type == 'text':
-            ret['content'] = dct.get('Content')
-            return ret
+        msg_type = formatted['type']
+        if not msg_type:
+            msg_type = 'invalid_type'
+        func = getattr(self, 'parse_%s' % msg_type)
+        if not callable(func):
+            func = self.parse_invalid_type
 
-        if type == 'image':
-            ret['picurl'] = dct.get('PicUrl')
-            return ret
+        parsed = func(raw)
+        formatted.update(parsed)
+        return formatted
 
-        if type == 'location':
-            ret['location_x'] = dct.get('Location_X')
-            ret['location_y'] = dct.get('Location_Y')
-            ret['scale'] = int(dct.get('Scale', 0))
-            ret['label'] = dct.get('Label')
-            return ret
+    def format(self, kwargs):
+        timestamp = int(kwargs.get('CreateTime', 0))
+        return {
+            'id': kwargs.get('MsgId'),
+            'timestamp': timestamp,
+            'receiver': kwargs.get('ToUserName'),
+            'sender': kwargs.get('FromUserName'),
+            'type': kwargs.get('MsgType'),
+            'time': datetime.fromtimestamp(timestamp / 1000.0),
+        }
 
-        if type == 'link':
-            ret['title'] = dct.get('Title')
-            ret['description'] = dct.get('Description')
-            ret['url'] = dct.get('url')
-            return ret
+    def parse_text(self, kwargs):
+        return {'content': kwargs.get('Content')}
 
-        if type == 'event':
-            ret['event'] = dct.get('Event')
-            ret['event_key'] = dct.get('EventKey')
-            ret['ticket'] = dct.get('Ticket')
-            ret['latitude'] = dct.get('Latitude')
-            ret['longitude'] = dct.get('Longitude')
-            ret['precision'] = dct.get('Precision')
-            return ret
+    def parse_image(self, kwargs):
+        return {'picurl': kwargs.get('PicUrl')}
 
-        return ret
+    def parse_location(self, kwargs):
+        return {
+            'location_x': kwargs.get('Location_X'),
+            'location_y': kwargs.get('Location_Y'),
+            'scale': int(kwargs.get('Scale', 0)),
+            'label': kwargs.get('Label'),
+        }
+
+    def parse_link(self, kwargs):
+        return {
+            'title': kwargs.get('Title'),
+            'description': kwargs.get('Description'),
+            'url': kwargs.get('url'),
+        }
+
+    def parse_event(self, kwargs):
+        return {
+            'event': kwargs.get('Event'),
+            'event_key': kwargs.get('EventKey'),
+            'ticket': kwargs.get('Ticket'),
+            'latitude': kwargs.get('Latitude'),
+            'longitude': kwargs.get('Longitude'),
+            'precision': kwargs.get('Precision'),
+        }
+
+    def parse_invalid_type(self, kwargs):
+        return {}
 
     def reply(self, username, type='text', sender=None, **kwargs):
         """Create the reply text for weixin.
