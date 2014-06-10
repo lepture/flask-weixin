@@ -115,38 +115,38 @@ class Weixin(object):
             'time': datetime.fromtimestamp(timestamp / 1000.0),
         }
 
-    def parse_text(self, kwargs):
-        return {'content': kwargs.get('Content')}
+    def parse_text(self, raw):
+        return {'content': raw.get('Content')}
 
-    def parse_image(self, kwargs):
-        return {'picurl': kwargs.get('PicUrl')}
+    def parse_image(self, raw):
+        return {'picurl': raw.get('PicUrl')}
 
-    def parse_location(self, kwargs):
+    def parse_location(self, raw):
         return {
-            'location_x': kwargs.get('Location_X'),
-            'location_y': kwargs.get('Location_Y'),
-            'scale': int(kwargs.get('Scale', 0)),
-            'label': kwargs.get('Label'),
+            'location_x': raw.get('Location_X'),
+            'location_y': raw.get('Location_Y'),
+            'scale': int(raw.get('Scale', 0)),
+            'label': raw.get('Label'),
         }
 
-    def parse_link(self, kwargs):
+    def parse_link(self, raw):
         return {
-            'title': kwargs.get('Title'),
-            'description': kwargs.get('Description'),
-            'url': kwargs.get('url'),
+            'title': raw.get('Title'),
+            'description': raw.get('Description'),
+            'url': raw.get('url'),
         }
 
-    def parse_event(self, kwargs):
+    def parse_event(self, raw):
         return {
-            'event': kwargs.get('Event'),
-            'event_key': kwargs.get('EventKey'),
-            'ticket': kwargs.get('Ticket'),
-            'latitude': kwargs.get('Latitude'),
-            'longitude': kwargs.get('Longitude'),
-            'precision': kwargs.get('Precision'),
+            'event': raw.get('Event'),
+            'event_key': raw.get('EventKey'),
+            'ticket': raw.get('Ticket'),
+            'latitude': raw.get('Latitude'),
+            'longitude': raw.get('Longitude'),
+            'precision': raw.get('Precision'),
         }
 
-    def parse_invalid_type(self, kwargs):
+    def parse_invalid_type(self, raw):
         return {}
 
     def reply(self, username, type='text', sender=None, **kwargs):
