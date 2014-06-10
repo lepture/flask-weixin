@@ -21,8 +21,8 @@ Or, with setuptools easy_install in case you didn't have pip::
     $ easy_install Flask-Weixin
 
 
-Get Started
------------
+Getting Started
+---------------
 
 Eager to get started? It is always the Flask way to create a new instance::
 
@@ -56,3 +56,59 @@ For Flask user, it is suggested that you use the default view function::
         )
 
 The example above will reply anything the user sent.
+
+
+Message Types
+-------------
+
+Every message from weixin has these information:
+
+* id: message ID
+* receiver: which is ``ToUserName`` in the official documentation
+* sender: which is ``FromUserName`` in the official documentation
+* type: message type
+* timestamp: message timestamp
+
+Text Type
+~~~~~~~~~
+
+Text type has an extra data: ``content``.
+
+
+Image Type
+~~~~~~~~~~
+
+Image type has an extra data: ``picurl``.
+
+
+Link Type
+~~~~~~~~~
+
+Link type has extra data:
+
+* title: article title
+* description: article description
+* url: original url of the article
+
+
+Location Type
+~~~~~~~~~~~~~
+
+Location type has extra data:
+
+* location_x
+* location_y
+* scale
+* label
+
+
+Event Type
+~~~~~~~~~~
+
+Event type has extra data:
+
+* event
+* event_key
+* latitude
+* longitude
+* precision
