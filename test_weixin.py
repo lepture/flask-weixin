@@ -269,3 +269,90 @@ class TestReplyWeixin(Base):
 
         text = self.__doc__ % 'send'
         self.client.post(signature_url, data=text)
+
+
+class TestKeyMatching(Base):
+
+    def setup_weixin(self):
+        @self.weixin.register(type='event', event='subscribe')
+        def subscribe_event(sender, receiver, event_key, **kwargs):
+            return self.weixin.reply(
+                sender, sender=receiver, content='@sub:%s' % event_key)
+
+        @self.weixin.register(type='event')
+        def event(sender, receiver, **kwargs):
+            return self.weixin.reply(sender, sender=receiver, content='@event')
+
+        @self.weixin.register(type='link')
+        def link(sender, receiver, **kwargs):
+            return self.weixin.reply(sender, sender=receiver, content='@link')
+
+        @self.weixin.register('*')
+        def fallback(sender, receiver, **kwargs):
+            return self.weixin.reply(sender, sender=receiver, content='@*')
+
+    def test_subscribe_event(self):
+        data = '''
+        <xml><ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[FromUser]]></FromUserName>
+        <CreateTime>1348831860</CreateTime>
+        <MsgType><![CDATA[event]]></MsgType>
+        <Event><![CDATA[subscribe]]></Event>
+        <EventKey><![CDATA[qrscene_123123]]></EventKey>
+        <Ticket><![CDATA[TICKET]]></Ticket>
+        </xml>
+        '''
+        rv = self.client.post(signature_url, data=data)
+        assert rv.status_code == 200, rv.status_code
+        assert b'@sub:qrscene_123123' in rv.data
+
+    def test_other_event(self):
+        data = '''
+        <xml><ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[FromUser]]></FromUserName>
+        <CreateTime>1348831860</CreateTime>
+        <MsgType><![CDATA[event]]></MsgType>
+        <Event><![CDATA[CLICK]]></Event>
+        <EventKey><![CDATA[V_1001]]></EventKey>
+        <Ticket><![CDATA[TICKET]]></Ticket>
+        </xml>
+        '''
+        rv = self.client.post(signature_url, data=data)
+        assert rv.status_code == 200, rv.status_code
+        assert b'@event' in rv.data
+        assert b'qrscene_123123' not in rv.data
+
+    def test_link(self):
+        data = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1351776360</CreateTime>
+        <MsgType><![CDATA[link]]></MsgType>
+        <Title><![CDATA[title]]></Title>
+        <Description><![CDATA[desc]]></Description>
+        <Url><![CDATA[url]]></Url>
+        <MsgId>1234567890123456</MsgId>
+        </xml>
+        '''
+        rv = self.client.post(signature_url, data=data)
+        assert rv.status_code == 200, rv.status_code
+        assert b'@link' in rv.data
+
+    def test_fallback(self):
+        data = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1351776360</CreateTime>
+        <MsgType><![CDATA[location]]></MsgType>
+        <Location_X>23.134521</Location_X>
+        <Location_Y>113.358803</Location_Y>
+        <Scale>20</Scale>
+        <Label><![CDATA[city-name]]></Label>
+        <MsgId>1234567890123456</MsgId>
+        </xml>
+        '''
+        rv = self.client.post(signature_url, data=data)
+        assert rv.status_code == 200, rv.status_code
+        assert b'@*' in rv.data
