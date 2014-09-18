@@ -32,13 +32,6 @@ class Weixin(object):
     http://mp.weixin.qq.com/wiki/index.php
     """
 
-    msg_types = {
-        'text': 'parse_text',
-        'image': 'parse_image',
-        'link': 'parse_link',
-        'event': 'parse_event',
-    }
-
     def __init__(self, app=None):
         self.token = None
         self._registry = {}
@@ -101,9 +94,9 @@ class Weixin(object):
         formatted = self.format(raw)
 
         msg_type = formatted['type']
-        if msg_type in self.msg_types:
-            method_name = self.msg_types[msg_type]
-            parsed = getattr(self, method_name)(raw)
+        msg_parser = getattr(self, 'parse_%s' % msg_type, None)
+        if callable(msg_parser):
+            parsed = msg_parser(raw)
         else:
             parsed = self.parse_invalid_type(raw)
 
