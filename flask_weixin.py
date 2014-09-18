@@ -94,13 +94,12 @@ class Weixin(object):
         formatted = self.format(raw)
 
         msg_type = formatted['type']
-        if not msg_type:
-            msg_type = 'invalid_type'
-        func = getattr(self, 'parse_%s' % msg_type)
-        if not callable(func):
-            func = self.parse_invalid_type
+        msg_parser = getattr(self, 'parse_%s' % msg_type, None)
+        if callable(msg_parser):
+            parsed = msg_parser(raw)
+        else:
+            parsed = self.parse_invalid_type(raw)
 
-        parsed = func(raw)
         formatted.update(parsed)
         return formatted
 
