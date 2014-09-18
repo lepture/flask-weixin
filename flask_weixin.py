@@ -228,7 +228,7 @@ class Weixin(object):
 
         return self.__call__(key)
 
-    def __call__(self, key):
+    def __call__(self, *args, **kwargs):
         """Register a reply function.
 
         Only available as a decorator::
@@ -242,7 +242,8 @@ class Weixin(object):
                 )
         """
         def wrapper(func):
-            self._registry[key] = func
+            self.register(func=func, *args, **kwargs)
+            return func
 
         return wrapper
 
