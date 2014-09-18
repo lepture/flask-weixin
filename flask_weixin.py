@@ -35,6 +35,7 @@ class Weixin(object):
     def __init__(self, app=None):
         self.token = None
         self._registry = {}
+        self._registry_without_key = []
 
         if app:
             self.init_app(app)
@@ -198,7 +199,7 @@ class Weixin(object):
 
         return None
 
-    def register(self, key, func=None):
+    def register(self, key=None, func=None, **kwargs):
         """Register a command helper function.
 
         You can register the function::
@@ -223,12 +224,16 @@ class Weixin(object):
                 )
         """
         if func:
-            self._registry[key] = func
-            return
+            if key is None:
+                limitation = frozenset(kwargs.items())
+                self._registry_without_key.append((func, limitation))
+            else:
+                self._registry[key] = func
+            return func
 
-        return self.__call__(key)
+        return self.__call__(key, **kwargs)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, key, **kwargs):
         """Register a reply function.
 
         Only available as a decorator::
@@ -242,7 +247,7 @@ class Weixin(object):
                 )
         """
         def wrapper(func):
-            self.register(func=func, *args, **kwargs)
+            self.register(key, func=func, **kwargs)
             return func
 
         return wrapper
@@ -279,10 +284,18 @@ class Weixin(object):
 
         if ret['type'] == 'text' and ret['content'] in self._registry:
             func = self._registry[ret['content']]
-        elif '*' in self._registry:
-            func = self._registry['*']
         else:
-            func = 'failed'
+            ret_set = frozenset(ret.items())
+            matched_rules = (
+                _func for _func, _limitation in self._registry_without_key
+                if _limitation.issubset(ret_set))
+            func = next(matched_rules, None)  # first matched rule
+
+        if func is None:
+            if '*' in self._registry:
+                func = self._registry['*']
+            else:
+                func = 'failed'
 
         if callable(func):
             text = func(**ret)
@@ -293,6 +306,7 @@ class Weixin(object):
                 sender=ret['receiver'],
                 content=func,
             )
+
         return Response(text, content_type='text/xml; charset=utf-8')
 
     view_func.methods = ['GET', 'POST']
