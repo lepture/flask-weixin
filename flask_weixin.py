@@ -111,7 +111,7 @@ class Weixin(object):
             'receiver': kwargs.get('ToUserName'),
             'sender': kwargs.get('FromUserName'),
             'type': kwargs.get('MsgType'),
-            'time': datetime.fromtimestamp(timestamp / 1000.0),
+            'time': datetime.fromtimestamp(timestamp),
         }
 
     def parse_text(self, raw):
