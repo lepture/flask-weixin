@@ -27,6 +27,7 @@ __author__ = 'Hsiaoming Yang <me@lepture.com>'
 
 
 class Weixin(object):
+
     """Interface for mp.weixin.qq.com
 
     http://mp.weixin.qq.com/wiki/index.php
@@ -197,6 +198,11 @@ class Weixin(object):
             items = kwargs.get('articles', [])
             return news_reply(username, sender, *items)
 
+        if type == 'customer_service':
+            service_account = kwargs.get('service_account', None)
+            return transfer_customer_service_reply(username, sender,
+                                                   service_account)
+
         return None
 
     def register(self, key=None, func=None, **kwargs):
@@ -357,6 +363,25 @@ def news_reply(username, sender, *items):
         'shared': _shared_reply(username, sender, 'news'),
         'count': len(items),
         'articles': ''.join(articles)
+    }
+    return template % dct
+
+
+def transfer_customer_service_reply(username, sender, service_account):
+    template = (
+        '<xml>%(shared)s'
+        '%(transfer_info)s</xml>')
+    transfer_info = ''
+    if service_account:
+        transfer_info = (
+            '<TransInfo>'
+            '<KfAccount>![CDATA[%s]]</KfAccount>'
+            '</TransInfo>') % service_account
+
+    dct = {
+        'shared': _shared_reply(username, sender,
+                                type='transfer_customer_service'),
+        'transfer_info': transfer_info
     }
     return template % dct
 

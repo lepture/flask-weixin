@@ -222,6 +222,14 @@ class TestReplyWeixin(Base):
                         }
                     ]
                 )
+            elif content == 'customer_service':
+                return weixin.reply(
+                    username, type='customer_service', sender=sender)
+
+            elif content == 'customer_service_to_foo':
+                return weixin.reply(
+                    username, type='customer_service', sender=sender,
+                    service_account='foo@bar')
             else:
                 return weixin.reply(
                     username, sender=sender, content='text reply'
@@ -257,6 +265,17 @@ class TestReplyWeixin(Base):
         text = self.__doc__ % 'show'
         rv = self.client.post(signature_url, data=text)
         assert b'show reply' in rv.data
+
+    def test_customer_service(self):
+        text = self.__doc__ % 'customer_service'
+        rv = self.client.post(signature_url, data=text)
+        assert b'transfer_customer_service' in rv.data
+
+    def test_customer_service_to_foo(self):
+        text = self.__doc__ % 'customer_service_to_foo'
+        rv = self.client.post(signature_url, data=text)
+        assert b'transfer_customer_service' in rv.data
+        assert b'foo@bar' in rv.data
 
     @raises(RuntimeError)
     def test_no_sender(self):
