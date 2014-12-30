@@ -22,7 +22,7 @@ except ImportError:
 
 
 __all__ = ('Weixin',)
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
 
 
