@@ -281,7 +281,7 @@ class Weixin(object):
             return 'signature failed', 400
 
         if request.method == 'GET':
-            echostr = request.args.get('echostr')
+            echostr = request.args.get('echostr', '')
             return echostr
 
         try:
