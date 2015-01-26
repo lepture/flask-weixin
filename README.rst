@@ -1,13 +1,22 @@
 Flask-Weixin
 ============
 
-.. image:: https://travis-ci.org/lepture/flask-weixin.png?branch=master
-        :target: https://travis-ci.org/lepture/flask-weixin
-.. image:: https://coveralls.io/repos/lepture/flask-weixin/badge.png?branch=master
-        :target: https://coveralls.io/r/lepture/flask-weixin
-
 Flask-Weixin is the implementation for http://mp.weixin.qq.com/ with the
 flavor of Flask. It can be used without Flask too.
+
+.. image:: https://pypip.in/wheel/flask-weixin/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/Flask-Weixin/
+   :alt: Wheel Status
+.. image:: https://pypip.in/version/flask-weixin/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/Flask-Weixin/
+   :alt: Latest Version
+.. image:: https://travis-ci.org/lepture/flask-weixin.svg?branch=master
+   :target: https://travis-ci.org/lepture/flask-weixin
+   :alt: Travis CI
+.. image:: https://coveralls.io/repos/lepture/flask-weixin/badge.svg?branch=master
+   :target: https://coveralls.io/r/lepture/flask-weixin
+   :alt: Coverage Status
+
 
 Installation
 ------------

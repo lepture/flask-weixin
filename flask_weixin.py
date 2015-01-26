@@ -5,7 +5,7 @@
 
     Weixin implementation in Flask.
 
-    :copyright: (c) 2013 - 2014 by Hsiaoming Yang.
+    :copyright: (c) 2013 - 2015 by Hsiaoming Yang and its contributors.
     :license: BSD, see LICENSE for more detail.
 """
 
