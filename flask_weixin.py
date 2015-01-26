@@ -350,7 +350,7 @@ def news_reply(username, sender, *items):
         '<Url><![CDATA[%(url)s]]></Url>'
         '</item>'
     )
-    articles = map(lambda o: item_template % o, items)
+    articles = [item_template % o for o in items]
 
     template = (
         '<xml>'
