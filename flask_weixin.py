@@ -65,7 +65,7 @@ class Weixin(object):
         if self.expires_in:
             try:
                 timestamp = int(timestamp)
-            except:
+            except (ValueError, TypeError):
                 # fake timestamp
                 return False
 
@@ -89,7 +89,12 @@ class Weixin(object):
         :param content: A text of xml body.
         """
         raw = {}
-        root = etree.fromstring(content)
+
+        try:
+            root = etree.fromstring(content)
+        except SyntaxError as e:
+            raise ValueError(*e.args)
+
         for child in root:
             raw[child.tag] = child.text
 
@@ -281,7 +286,7 @@ class Weixin(object):
 
         try:
             ret = self.parse(request.data)
-        except:
+        except ValueError:
             return 'invalid', 400
 
         if 'type' not in ret:
@@ -350,7 +355,7 @@ def news_reply(username, sender, *items):
         '<Url><![CDATA[%(url)s]]></Url>'
         '</item>'
     )
-    articles = map(lambda o: item_template % o, items)
+    articles = [item_template % o for o in items]
 
     template = (
         '<xml>'
