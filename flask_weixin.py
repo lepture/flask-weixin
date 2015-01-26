@@ -89,7 +89,12 @@ class Weixin(object):
         :param content: A text of xml body.
         """
         raw = {}
-        root = etree.fromstring(content)
+
+        try:
+            root = etree.fromstring(content)
+        except SyntaxError as e:
+            raise ValueError(*e.args)
+
         for child in root:
             raw[child.tag] = child.text
 
