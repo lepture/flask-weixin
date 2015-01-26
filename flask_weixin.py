@@ -65,7 +65,7 @@ class Weixin(object):
         if self.expires_in:
             try:
                 timestamp = int(timestamp)
-            except:
+            except (ValueError, TypeError):
                 # fake timestamp
                 return False
 
@@ -281,7 +281,7 @@ class Weixin(object):
 
         try:
             ret = self.parse(request.data)
-        except:
+        except ValueError:
             return 'invalid', 400
 
         if 'type' not in ret:
