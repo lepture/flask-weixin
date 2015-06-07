@@ -4,10 +4,10 @@ Flask-Weixin
 Flask-Weixin is the implementation for http://mp.weixin.qq.com/ with the
 flavor of Flask. It can be used without Flask too.
 
-.. image:: https://pypip.in/wheel/flask-weixin/badge.svg?style=flat
+.. image:: https://img.shields.io/pypi/wheel/flask-weixin.svg?style=flat
    :target: https://pypi.python.org/pypi/Flask-Weixin/
    :alt: Wheel Status
-.. image:: https://pypip.in/version/flask-weixin/badge.svg?style=flat
+.. image:: https://img.shields.io/pypi/v/flask-weixin.svg?style=flat
    :target: https://pypi.python.org/pypi/Flask-Weixin/
    :alt: Latest Version
 .. image:: https://travis-ci.org/lepture/flask-weixin.svg?branch=master
