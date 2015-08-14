@@ -27,7 +27,6 @@ __author__ = 'Hsiaoming Yang <me@lepture.com>'
 
 
 class Weixin(object):
-
     """Interface for mp.weixin.qq.com
 
     http://mp.weixin.qq.com/wiki/index.php
@@ -42,11 +41,8 @@ class Weixin(object):
             self.init_app(app)
 
     def init_app(self, app):
-        if hasattr(app, 'config'):
-            config = app.config
-        else:
-            # flask-weixin can be used without flask
-            config = app
+        # flask-weixin can be used without flask
+        config = getattr(app, 'config', app)
 
         self.token = config.get('WEIXIN_TOKEN', None)
         self.sender = config.get('WEIXIN_SENDER', None)
