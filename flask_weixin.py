@@ -12,6 +12,7 @@
 import time
 import hashlib
 from datetime import datetime
+from collections import namedtuple
 
 try:
     from lxml import etree
@@ -20,10 +21,18 @@ except ImportError:
 except ImportError:
     from xml.etree import ElementTree as etree
 
+try:
+    from flask import current_app
+except ImportError:
+    current_app = None
+
 
 __all__ = ('Weixin',)
 __version__ = '0.4.1'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
+
+
+StandaloneApplication = namedtuple('StandaloneApplication', ['config'])
 
 
 class Weixin(object):
@@ -37,16 +46,20 @@ class Weixin(object):
         self._registry = {}
         self._registry_without_key = []
 
-        if app:
+        if isinstance(app, dict):
+            # flask-weixin can be used without flask
+            app = StandaloneApplication(config=app)
+
+        if app is None:
+            self.app = current_app
+        else:
             self.init_app(app)
+            self.app = app
 
     def init_app(self, app):
-        # flask-weixin can be used without flask
-        config = getattr(app, 'config', app)
-
-        self.token = config.get('WEIXIN_TOKEN', None)
-        self.sender = config.get('WEIXIN_SENDER', None)
-        self.expires_in = config.get('WEIXIN_EXPIRES_IN', 0)
+        self.token = app.config.get('WEIXIN_TOKEN', None)
+        self.sender = app.config.get('WEIXIN_SENDER', None)
+        self.expires_in = app.config.get('WEIXIN_EXPIRES_IN', 0)
 
     def validate(self, signature, timestamp, nonce):
         """Validate request signature.
