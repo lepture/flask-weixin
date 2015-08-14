@@ -22,9 +22,11 @@ except ImportError:
     from xml.etree import ElementTree as etree
 
 try:
-    from flask import current_app
+    from flask import current_app, request, Response
 except ImportError:
     current_app = None
+    request = None
+    Response = None
 
 
 __all__ = ('Weixin',)
@@ -42,7 +44,6 @@ class Weixin(object):
     """
 
     def __init__(self, app=None):
-        self.token = None
         self._registry = {}
         self._registry_without_key = []
 
@@ -57,9 +58,21 @@ class Weixin(object):
             self.app = app
 
     def init_app(self, app):
-        self.token = app.config.get('WEIXIN_TOKEN', None)
-        self.sender = app.config.get('WEIXIN_SENDER', None)
-        self.expires_in = app.config.get('WEIXIN_EXPIRES_IN', 0)
+        app.config.setdefault('WEIXIN_TOKEN', None)
+        app.config.setdefault('WEIXIN_SENDER', None)
+        app.config.setdefault('WEIXIN_EXPIRES_IN', 0)
+
+    @property
+    def token(self):
+        return self.app.config['WEIXIN_TOKEN']
+
+    @property
+    def sender(self):
+        return self.app.config['WEIXIN_SENDER']
+
+    @property
+    def expires_in(self):
+        return self.app.config['WEIXIN_EXPIRES_IN']
 
     def validate(self, signature, timestamp, nonce):
         """Validate request signature.
@@ -192,11 +205,9 @@ class Weixin(object):
             * picurl: A link for article cover image
             * url: A link for article url
         """
+        sender = sender or self.sender
         if not sender:
-            sender = self.sender
-
-        if not sender:
-            raise RuntimeError('WEIXIN_SENDER is missing')
+            raise RuntimeError('WEIXIN_SENDER or sender argument is missing')
 
         if type == 'text':
             content = kwargs.get('content', '')
@@ -216,8 +227,6 @@ class Weixin(object):
             service_account = kwargs.get('service_account', None)
             return transfer_customer_service_reply(username, sender,
                                                    service_account)
-
-        return None
 
     def register(self, key=None, func=None, **kwargs):
         """Register a command helper function.
@@ -281,7 +290,8 @@ class Weixin(object):
             weixin = Weixin(app)
             app.add_url_rule('/', view_func=weixin.view_func)
         """
-        from flask import request, Response
+        if request is None:
+            raise RuntimeError('view_func need Flask be installed')
 
         signature = request.args.get('signature')
         timestamp = request.args.get('timestamp')
