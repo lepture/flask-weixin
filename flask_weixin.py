@@ -174,6 +174,13 @@ class Weixin(object):
             'precision': raw.get('Precision'),
         }
 
+    def parse_voice(self, raw):
+        return {
+            'media_id': raw.get('MediaID'),
+            'format': raw.get('Format'),
+            'recognition': raw.get('Recognition'),
+        }
+
     def parse_invalid_type(self, raw):
         return {}
 
