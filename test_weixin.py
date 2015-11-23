@@ -143,6 +143,23 @@ class TestSimpleWeixin(Base):
         rv = self.client.post(signature_url, data=text)
         assert rv.status_code == 200
 
+    def test_post_voice(self):
+        '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1357290913</CreateTime>
+        <MsgType><![CDATA[voice]]></MsgType>
+        <MediaId><![CDATA[media_id]]></MediaId>
+        <Format><![CDATA[Format]]></Format>
+        <Recognition><![CDATA[腾讯微信团队]]></Recognition>
+        <MsgId>1234567890123456</MsgId>
+        </xml>
+        '''
+        text = self.test_post_event.__doc__
+        rv = self.client.post(signature_url, data=text)
+        assert rv.status_code == 200
+
     def test_post_no_type(self):
         '''
         <xml>
@@ -306,6 +323,10 @@ class TestKeyMatching(Base):
         def link(sender, receiver, **kwargs):
             return self.weixin.reply(sender, sender=receiver, content='@link')
 
+        @self.weixin.register(type='voice')
+        def voice(sender, receiver, **kwargs):
+            return self.weixin.reply(sender, sender=receiver, content='@voice')
+
         @self.weixin.register('*')
         def fallback(sender, receiver, **kwargs):
             return self.weixin.reply(sender, sender=receiver, content='@*')
@@ -357,6 +378,23 @@ class TestKeyMatching(Base):
         rv = self.client.post(signature_url, data=data)
         assert rv.status_code == 200, rv.status_code
         assert b'@link' in rv.data
+
+    def test_voice(self):
+        data = '''
+        <xml>
+        <ToUserName><![CDATA[toUser]]></ToUserName>
+        <FromUserName><![CDATA[fromUser]]></FromUserName>
+        <CreateTime>1357290913</CreateTime>
+        <MsgType><![CDATA[voice]]></MsgType>
+        <MediaId><![CDATA[media_id]]></MediaId>
+        <Format><![CDATA[Format]]></Format>
+        <Recognition><![CDATA[腾讯微信团队]]></Recognition>
+        <MsgId>1234567890123456</MsgId>
+        </xml>
+        '''
+        rv = self.client.post(signature_url, data=data)
+        assert rv.status_code == 200, rv.status_code
+        assert b'@voice' in rv.data
 
     def test_fallback(self):
         data = '''
