@@ -30,7 +30,7 @@ except ImportError:
 
 
 __all__ = ('Weixin',)
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
 
 
