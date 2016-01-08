@@ -66,6 +66,24 @@ For Flask user, it is suggested that you use the default view function::
 
 The example above will reply anything the user sent.
 
+Or you can register a function to handle a specific keyword::
+
+    @weixin.register('help')
+    def reply_help(**kwargs):
+        ...
+
+this function will be used to handle text message ``help``.
+
+There are more ways to match messages to handlers::
+
+    @weixin.register(type='event', event='subscribe')
+    def send_welcome(**kwargs):
+        username = kwargs.get('sender')
+        sender = kwargs.get('receiver')
+        return weixin.reply(username, sender=sender, content='Thanks for follow!')
+
+this function will send a message to new followers.
+
 
 Message Types
 -------------
