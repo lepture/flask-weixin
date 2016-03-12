@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+*.egg
 *.egg-info
 __pycache__
 bin

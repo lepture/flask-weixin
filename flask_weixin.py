@@ -188,8 +188,8 @@ class Weixin(object):
         """Create the reply text for weixin.
 
         The reply varies per reply type. The acceptable types are `text`,
-        `music` and `news`. Each type accepts different parameters, but
-        they share some common parameters:
+        `music`, `news`, `image`, `voice`, `video`. Each type accepts
+        different parameters, but they share some common parameters:
 
             * username: the receiver's username
             * type: the reply type, aka text, music and news
@@ -211,6 +211,14 @@ class Weixin(object):
             * description: A string for article description
             * picurl: A link for article cover image
             * url: A link for article url
+
+        Image and Voice reply requires an additional parameter of `media_id`.
+
+        Video reply requires 3 more parameters:
+
+            * media_id: A string for video `media_id`
+            * title: A string for video title
+            * description: A string for video description
         """
         sender = sender or self.sender
         if not sender:
@@ -234,6 +242,20 @@ class Weixin(object):
             service_account = kwargs.get('service_account', None)
             return transfer_customer_service_reply(username, sender,
                                                    service_account)
+
+        if type == 'image':
+            media_id = kwargs.get('media_id', '')
+            return image_reply(username, sender, media_id)
+
+        if type == 'voice':
+            media_id = kwargs.get('media_id', '')
+            return voice_reply(username, sender, media_id)
+
+        if type == 'video':
+            values = {}
+            for k in ('media_id', 'title', 'description'):
+                values[k] = kwargs.get(k)
+            return video_reply(username, sender, **values)
 
     def register(self, key=None, func=None, **kwargs):
         """Register a command helper function.
@@ -415,6 +437,34 @@ def transfer_customer_service_reply(username, sender, service_account):
         'transfer_info': transfer_info
     }
     return template % dct
+
+
+def image_reply(username, sender, media_id):
+    shared = _shared_reply(username, sender, 'image')
+    template = '<xml>%s<Image><MediaId><![CDATA[%s]]></MediaId></Image></xml>'
+    return template % (shared, media_id)
+
+
+def voice_reply(username, sender, media_id):
+    shared = _shared_reply(username, sender, 'voice')
+    template = '<xml>%s<Voice><MediaId><![CDATA[%s]]></MediaId></Voice></xml>'
+    return template % (shared, media_id)
+
+
+def video_reply(username, sender, **kwargs):
+    kwargs['shared'] = _shared_reply(username, sender, 'video')
+
+    template = (
+        '<xml>'
+        '%(shared)s'
+        '<Video>'
+        '<MediaId><![CDATA[%(media_id)s]]></MediaId>'
+        '<Title><![CDATA[%(title)s]]></Title>'
+        '<Description><![CDATA[%(description)s]]></Description>'
+        '</Video>'
+        '</xml>'
+    )
+    return template % kwargs
 
 
 def _shared_reply(username, sender, type):

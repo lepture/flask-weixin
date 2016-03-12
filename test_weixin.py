@@ -247,6 +247,22 @@ class TestReplyWeixin(Base):
                 return weixin.reply(
                     username, type='customer_service', sender=sender,
                     service_account='foo@bar')
+            elif content == 'image':
+                return weixin.reply(
+                        username, type='image', sender=sender,
+                        media_id='weixin_image'
+                    )
+            elif content == 'voice':
+                return weixin.reply(
+                        username, type='voice', sender=sender,
+                        media_id='weixin_voice'
+                    )
+            elif content == 'video':
+                return weixin.reply(
+                        username, type='video', sender=sender,
+                        media_id='weixin_video', title='Hello Video',
+                        description='Hello Video Description'
+                    )
             else:
                 return weixin.reply(
                     username, sender=sender, content='text reply'
@@ -293,6 +309,23 @@ class TestReplyWeixin(Base):
         rv = self.client.post(signature_url, data=text)
         assert b'transfer_customer_service' in rv.data
         assert b'foo@bar' in rv.data
+
+    def test_image(self):
+        text = self.__doc__ % 'image'
+        rv = self.client.post(signature_url, data=text)
+        assert b'weixin_image' in rv.data
+
+    def test_voice(self):
+        text = self.__doc__ % 'voice'
+        rv = self.client.post(signature_url, data=text)
+        assert b'weixin_voice' in rv.data
+
+    def test_video(self):
+        text = self.__doc__ % 'video'
+        rv = self.client.post(signature_url, data=text)
+        assert b'weixin_video' in rv.data
+        assert b'Hello Video' in rv.data
+        assert b'Hello Video Description' in rv.data
 
     @raises(RuntimeError)
     def test_no_sender(self):
